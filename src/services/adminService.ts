@@ -1,17 +1,16 @@
 // src/services/adminService.ts
-import axios from 'axios';
+import axiosClient from '../utils/axiosClient';
 
-// Theo docker-compose, admin-service chạy ở cổng 8008
-const BASE_URL = 'http://localhost:8008';
+const BASE_URL = 'http://localhost:5173/api/admin-service';
 
 export const adminService = {
     getStats: async () => {
-        const token = localStorage.getItem('adminToken');
-        const response = await axios.get(`${BASE_URL}/admin/stats`, {
-            headers: {
-                Authorization: token ? `Bearer ${token}` : '',
-            },
-        });
+        const response = await axiosClient.get(`${BASE_URL}/admin/stats`);
         return response.data;
     },
+    // BỔ SUNG HÀM NÀY ĐỂ LẤY DỮ LIỆU BIỂU ĐỒ THẬT
+    getPendingOrders: async () => {
+        const response = await axiosClient.get(`${BASE_URL}/admin/orders/pending`);
+        return response.data;
+    }
 };

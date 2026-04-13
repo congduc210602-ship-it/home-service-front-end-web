@@ -1,46 +1,49 @@
 // src/App.tsx
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import AdminLayout from './layouts/AdminLayout';
-import Login from './pages/Login'; // Import trang Login vừa tạo
-import { Typography } from '@mui/material';
-import type { JSX } from '@emotion/react/jsx-runtime';
+
 import Dashboard from './pages/Dashboard';
-import UsersPage from './pages/UsersPage';
+
 import ServicesPage from './pages/ServicesPage';
+import UsersPage from './pages/UsersPage';
+import OrdersPage from './pages/OrdersPage';
+import ReviewsPage from './pages/ReviewsPage';
+import LoginPage from './pages/LoginPage';
+import TransactionsPage from './pages/TransactionsPage';
 
+import type { JSX } from '@emotion/react/jsx-runtime';
 
-// Hàm bảo vệ Route: Nếu chưa có token thì bắt quay lại trang Login
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const token = localStorage.getItem('adminToken');
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
+// Component kiểm tra quyền (Cổng an ninh)
+const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    
+    // Nếu không có token hoặc không phải admin, đá về trang /login
+    if (!token || role !== 'admin') {
+        return <Navigate to="/login" replace />;
+    }
+    return children;
 };
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* Route không cần bảo vệ */}
-        <Route path="/login" element={<Login />} />
+    return (
+        <Router>
+            <Routes>
+                {/* Trang đăng nhập (Ai cũng vào được) */}
+                <Route path="/login" element={<LoginPage />} />
 
-        {/* Các Route cần đăng nhập mới vào được */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Dashboard />} />
-          <Route path="users" element={<UsersPage />} />
-          <Route path="services" element={<ServicesPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  );
+                {/* Các trang Admin (Bị khóa bởi PrivateRoute) */}
+                <Route path="/" element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="users" element={<UsersPage />} />
+                    <Route path="services" element={<ServicesPage />} />
+                    <Route path="orders" element={<OrdersPage />} />
+                    <Route path="reviews" element={<ReviewsPage />} />
+                    <Route path="transactions" element={<TransactionsPage />} />
+                </Route>
+            </Routes>
+        </Router>
+    );
 }
 
 export default App;

@@ -1,15 +1,20 @@
 // src/services/authService.ts
-import axios from 'axios';
+import axiosClient from '../utils/axiosClient';
 
-// Đổi cổng từ 8000 sang 8001 cho khớp với docker-compose
-const BASE_URL = 'http://localhost:8001';
+const BASE_URL = 'http://localhost:5173/api/auth-service';
 
 export const authService = {
     login: async (phone: string, password: string) => {
-        const response = await axios.post(`${BASE_URL}/auth/login/password`, {
+        const response = await axiosClient.post(`${BASE_URL}/auth/login/password`, {
             phone,
-            password,
+            password
         });
         return response.data;
     },
+    
+    logout: () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        window.location.href = '/login';
+    }
 };
